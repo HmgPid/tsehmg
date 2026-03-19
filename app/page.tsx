@@ -7,7 +7,7 @@ import jsPDF from 'jspdf';
 
 const MEASUREMENT_ROWS = [
   { label: "Resistência do condutor de proteção", limit: "<= 0,200 Ω", limitColor: "#555" },
-  { label: "Resistência de isolação", limit: ">= 2,000 MΩ", limitColor: "#555" },
+  { label: "Resistência de isolação", limit: ">= 2 MΩ", limitColor: "#555" },
   { label: "Corrente de fuga para terra", limit: "<= 500 µA", limitColor: "#555" },
   { label: "Corrente de fuga para terra (Única falta)", limit: "<= 1000 µA", limitColor: "#555" },
   { label: "Corrente de fuga para carcaça", limit: "<= 100 µA", limitColor: "#555" },
@@ -144,7 +144,15 @@ export default function Home() {
   };
 
   const handleMeasurementChange = (index: number, value: string) => {
-    const cleanValue = value.replace(/[^0-9.,]/g, '');
+    let cleanValue = value.replace(/[^0-9.,]/g, '');
+
+    const firstSeparator = cleanValue.search(/[.,]/);
+    if (firstSeparator !== -1) {
+      const before = cleanValue.substring(0, firstSeparator + 1); 
+      const after = cleanValue.substring(firstSeparator + 1).replace(/[.,]/g, ''); 
+      cleanValue = before + after;
+    }
+
     setMeasurements(prev => ({ ...prev, [index]: cleanValue }));
   };
 
@@ -179,7 +187,6 @@ export default function Home() {
       <div className={styles.page} ref={contentRef}>
 
         <header className={styles.header}>
-          {}
           <img
             src="/logo.png"
             alt="Logo Martagão"
@@ -191,7 +198,7 @@ export default function Home() {
         <div className={styles.sectionTitle}>Informativo do Analisador de Segurança Elétrica</div>
         <div className={styles.infoGrid}>
           <div className={styles.field}><label>MODELO DO ANALISADOR:</label><input type="text" defaultValue="Fluke ESA612" /></div>
-          <div className={styles.field}><label>Nº SÉRIE ANALISADOR:</label><input type="text" /></div>
+          <div className={styles.field}><label>Nº SÉRIE ANALISADOR:</label><input type="text" defaultValue="3964834" /></div>
           <div className={styles.field}><label>NORMA TÉCNICA:</label><input type="text" defaultValue="IEC 60601.1" /></div>
           <div className={styles.field}><label>REGISTRO DE CALIBRAÇÃO:</label><input type="text" /></div>
           <div className={styles.field}><label>DATA DA CALIBRAÇÃO:</label><input type="date" className={styles.dateInput} /></div>
@@ -242,18 +249,26 @@ export default function Home() {
           <tbody>
             {MEASUREMENT_ROWS.map((row, index) => {
               const resultValue = calculateResult(measurements[index], row.limit);
+              const unit = row.limit.split(' ').pop(); 
+              const hasValue = measurements[index] && measurements[index].length > 0;
+
               return (
                 <tr key={index}>
                   <td>{row.label}</td>
                   <td>
-                    <input
-                      type="text"
-                      value={measurements[index] || ''}
-                      onChange={(e) => handleMeasurementChange(index, e.target.value)}
-                      inputMode="decimal"
-                      style={{ textAlign: 'center' }}
-                      placeholder="0,000"
-                    />
+                    <div style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+                        <input
+                          type="text"
+                          value={measurements[index] || ''}
+                          onChange={(e) => handleMeasurementChange(index, e.target.value)}
+                          inputMode="decimal"
+                          style={{ textAlign: 'right', width: '60%', paddingRight: '5px' }}
+                          placeholder="0,000"
+                        />
+                        <span style={{ fontSize: '10px', color: '#555', fontWeight: 'bold', width: '40%', textAlign: 'left' }}>
+                            {hasValue ? unit : ''}
+                        </span>
+                    </div>
                   </td>
                   <td style={{ textAlign: 'center', color: row.limitColor }}>{row.limit}</td>
                   <td>
@@ -268,7 +283,6 @@ export default function Home() {
               );
             })}
             
-            {}
             <tr style={{ 
                 backgroundColor: 'var(--primary-blue)',
             }}>
