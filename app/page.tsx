@@ -70,7 +70,8 @@ export default function Home() {
 
           div.innerText = value;
           
-          div.style.width = '100%'; 
+          div.style.width = el.style.width || '100%'; 
+          
           div.style.fontSize = styles.fontSize;
           div.style.fontWeight = styles.fontWeight;
           div.style.color = styles.color;
@@ -250,22 +251,23 @@ export default function Home() {
             {MEASUREMENT_ROWS.map((row, index) => {
               const resultValue = calculateResult(measurements[index], row.limit);
               const unit = row.limit.split(' ').pop(); 
+
               const hasValue = measurements[index] && measurements[index].length > 0;
 
               return (
                 <tr key={index}>
                   <td>{row.label}</td>
                   <td>
-                    <div style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
                         <input
                           type="text"
                           value={measurements[index] || ''}
                           onChange={(e) => handleMeasurementChange(index, e.target.value)}
                           inputMode="decimal"
-                          style={{ textAlign: 'right', width: '60%', paddingRight: '5px' }}
+                          style={{ textAlign: 'right', width: '50px', paddingRight: '4px' }}
                           placeholder="0,000"
                         />
-                        <span style={{ fontSize: '10px', color: '#555', fontWeight: 'bold', width: '40%', textAlign: 'left' }}>
+                        <span style={{ fontSize: '10px', color: '#555', fontWeight: 'bold', width: '30px', textAlign: 'left' }}>
                             {hasValue ? unit : ''}
                         </span>
                     </div>
@@ -305,12 +307,23 @@ export default function Home() {
           </tbody>
         </table>
 
-        <div className={styles.obsContainer}>
-          <div className={styles.sectionTitle} style={{ marginTop: 0 }}>OBSERVAÇÕES ADICIONAIS</div>
-          <textarea placeholder="Digite aqui as observações do teste..."></textarea>
+        <div className={styles.obsContainer} style={{ width: '100%' }}>
+          <div className={styles.sectionTitle} style={{ marginTop: 0, width: '100%', boxSizing: 'border-box' }}>
+            OBSERVAÇÕES ADICIONAIS
+          </div>
+          <textarea 
+            placeholder="Digite aqui as observações do teste..."
+            style={{ 
+              height: '55px', 
+              width: '100%', 
+              boxSizing: 'border-box', 
+              display: 'block',
+              margin: 0
+            }}
+          ></textarea>
         </div>
 
-        <footer className={styles.footer}>
+        <footer className={styles.footer} style={{ marginTop: '50px' }}>
           <button
             className={styles.printBtn}
             onClick={handleDownloadPdf}
